@@ -33,6 +33,8 @@ main()
   show_ssh_session_port=$(get_tmux_option "@dracula-show-ssh-session-port" false)
   show_libreview=$(get_tmux_option "@dracula-show-libreview" false)
   IFS=' ' read -r -a plugins <<< $(get_tmux_option "@dracula-plugins" "battery network weather")
+  IFS=' ' read -r -a current_window_colors <<< $(get_tmux_option "@dracula-current-window-colors" "dark_purple white")
+  IFS=' ' read -r -a window_colors <<< $(get_tmux_option "@dracula-window-colors" "gray white")
   show_empty_plugins=$(get_tmux_option "@dracula-show-empty-plugins" true)
 
   # Dracula Color Pallette
@@ -294,14 +296,15 @@ main()
 
   # Window option
   if $show_powerline; then
-    tmux set-window-option -g window-status-current-format "#[fg=${gray},bg=${dark_purple}]${left_sep}#[fg=${white},bg=${dark_purple}] #I #W${current_flags} #[fg=${dark_purple},bg=${gray}]${left_sep}"
+    tmux set-window-option -g window-status-current-format "#[fg=${gray},bg=${dark_purple}]${left_sep}#[fg=${!current_window_colors[1]},bg=${!current_window_colors[0]}] #I #W${current_flags} #[fg=${dark_purple},bg=${gray}]${left_sep}"
   else
-    tmux set-window-option -g window-status-current-format "#[fg=${white},bg=${dark_purple}] #I #W${current_flags} "
+    tmux set-window-option -g window-status-current-format "#[fg=${!current_window_colors[1]},bg=${!current_window_colors[0]}] #I #W${current_flags} "
   fi
 
-  tmux set-window-option -g window-status-format "#[fg=${white}]#[bg=${gray}] #I #W${flags}"
+  tmux set-window-option -g window-status-format "#[fg=${!window_colors[1]}]#[bg=${!window_colors[0]}] #I #W${flags}"
   tmux set-window-option -g window-status-activity-style "bold"
   tmux set-window-option -g window-status-bell-style "bold"
+
 }
 
 # run main function
