@@ -51,10 +51,18 @@ get_gpu()
 
   elif [[ "$gpu" == apple ]]; then
     usage="$(sudo powermetrics --samplers gpu_power -i500 -n 1 | grep 'GPU Power' | sed 's/GPU Power: \(.*\) \(.*\)/\1\2/g')"
-  else
-    usage='unknown'
+  elif [[ "$gpu" == Advanced ]]; then
+    usage=$(
+      for card in /sys/class/drm/card?
+      do
+        echo "$(($(cat "$card"/device/hwmon/hwmon?/power1_average) / 1000 / 1000))/$(($(cat "$card"/device/hwmon/hwmon?/power1_cap_max) / 1000 / 1000))W"
+      done | \
+      sed -z -e 's/\n/|/g' -e 's/|$//g'
+    )
+  else # "Intel" "Matrox", etc
+    usage="unknown"
   fi
-  normalize_percent_len $usage
+  echo $usage
 }
 
 main()

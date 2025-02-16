@@ -46,8 +46,10 @@ get_gpu()
     usage=$(nvidia-smi --query-gpu=utilization.gpu --format=csv,noheader,nounits | awk '{ sum += $0 } END { printf("%d%%\n", sum / NR) }')
   elif [[ "$gpu" == apple ]]; then
     usage="$(sudo powermetrics --samplers gpu_power -i500 -n 1 | grep 'active residency' | sed 's/[^0-9.%]//g' | sed 's/[%].*$//g')%"
-  else
-    usage='unknown'
+  elif [[ "$gpu" == Advanced ]]; then
+    usage="$(cat /sys/class/drm/card?/device/gpu_busy_percent | sed -z -e 's/\n/%|/g' -e 's/|$//g')"
+  else # "Intel" "Matrox", etc
+    usage="unknown"
   fi
   normalize_percent_len $usage
 }
